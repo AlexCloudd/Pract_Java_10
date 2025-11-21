@@ -18,7 +18,26 @@ public class UserServiceApplication {
     }
     
     private static void configureDatabaseFromEnvironment() {
-        // Проверяем DATABASE_URL (Railway часто предоставляет его)
+        // Приоритет 1: Проверяем SPRING_DATASOURCE_URL (рекомендуемый способ для Railway)
+        String springUrl = System.getenv("SPRING_DATASOURCE_URL");
+        if (springUrl != null && !springUrl.isEmpty()) {
+            System.setProperty("spring.datasource.url", springUrl);
+            String username = System.getenv("SPRING_DATASOURCE_USERNAME");
+            String password = System.getenv("SPRING_DATASOURCE_PASSWORD");
+            if (username != null && !username.isEmpty()) {
+                System.setProperty("spring.datasource.username", username);
+            }
+            if (password != null && !password.isEmpty()) {
+                System.setProperty("spring.datasource.password", password);
+            }
+            System.out.println("========================================");
+            System.out.println("Using SPRING_DATASOURCE_URL from environment");
+            System.out.println("  URL: " + springUrl);
+            System.out.println("========================================");
+            return;
+        }
+        
+        // Приоритет 2: Проверяем DATABASE_URL (Railway часто предоставляет его)
         String databaseUrl = System.getenv("DATABASE_URL");
         if (databaseUrl != null && !databaseUrl.isEmpty() && databaseUrl.startsWith("postgresql://")) {
             try {
@@ -30,42 +49,11 @@ public class UserServiceApplication {
             }
         }
         
-        // Используем стандартные переменные окружения Railway
-        String host = System.getenv("DB_HOST");
-        if (host == null || host.isEmpty()) host = System.getenv("PGHOST");
-        if (host == null || host.isEmpty()) host = "localhost";
-        
-        String port = System.getenv("DB_PORT");
-        if (port == null || port.isEmpty()) port = System.getenv("PGPORT");
-        if (port == null || port.isEmpty()) port = "5432";
-        
-        String database = System.getenv("DB_NAME");
-        if (database == null || database.isEmpty()) database = System.getenv("PGDATABASE");
-        if (database == null || database.isEmpty()) database = "Java_pr";
-        
-        String username = System.getenv("DB_USERNAME");
-        if (username == null || username.isEmpty()) username = System.getenv("PGUSER");
-        if (username == null || username.isEmpty()) username = "postgres";
-        
-        String password = System.getenv("DB_PASSWORD");
-        if (password == null || password.isEmpty()) password = System.getenv("PGPASSWORD");
-        if (password == null || password.isEmpty()) password = "postgres";
-        
-        String jdbcUrl = String.format("jdbc:postgresql://%s:%s/%s", host, port, database);
-        
-        // Устанавливаем системные свойства, которые Spring Boot будет использовать
-        System.setProperty("spring.datasource.url", jdbcUrl);
-        System.setProperty("spring.datasource.username", username);
-        System.setProperty("spring.datasource.password", password);
-        
-        // Логируем для отладки
+        // Приоритет 3: Используем стандартные переменные окружения Railway
+        // Если они не установлены, Spring Boot использует значения по умолчанию из application.yml
         System.out.println("========================================");
-        System.out.println("Database Configuration:");
-        System.out.println("  Host: " + host);
-        System.out.println("  Port: " + port);
-        System.out.println("  Database: " + database);
-        System.out.println("  Username: " + username);
-        System.out.println("  JDBC URL: " + jdbcUrl);
+        System.out.println("Using default database configuration from application.yml");
+        System.out.println("  (Variables: PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD)");
         System.out.println("========================================");
     }
     

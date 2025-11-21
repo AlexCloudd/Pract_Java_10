@@ -7,10 +7,13 @@ spring:
   main:
     web-application-type: servlet
   datasource:
-    # Конфигурация базы данных устанавливается программно в main() методе
-    # Поддерживаются: DATABASE_URL, DB_HOST/DB_PORT, PGHOST/PGPORT и их комбинации
-    # Railway автоматически предоставляет переменные окружения при подключении PostgreSQL
-    # URL, username и password устанавливаются через System.setProperty() до запуска Spring Boot
+    # Конфигурация для Railway
+    # Приоритет 1: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD (рекомендуется)
+    # Приоритет 2: DATABASE_URL (парсится программно)
+    # Приоритет 3: PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:Java_pr}}
+    username: ${SPRING_DATASOURCE_USERNAME:${PGUSER:postgres}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${PGPASSWORD:postgres}}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
