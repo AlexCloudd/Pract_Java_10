@@ -17,11 +17,20 @@ public class MovieServiceApplication {
     
     private static void logEnvironmentVariables() {
         System.out.println("========================================");
-        System.out.println("Environment Variables Check:");
-        System.out.println("  SPRING_DATASOURCE_URL: " + (System.getenv("SPRING_DATASOURCE_URL") != null ? "SET" : "NOT SET"));
-        System.out.println("  SPRING_DATASOURCE_USERNAME: " + (System.getenv("SPRING_DATASOURCE_USERNAME") != null ? "SET" : "NOT SET"));
-        System.out.println("  SPRING_DATASOURCE_PASSWORD: " + (System.getenv("SPRING_DATASOURCE_PASSWORD") != null ? "SET" : "NOT SET"));
+        System.out.println("Environment Variables Check (BEFORE Spring Boot starts):");
+        String url = System.getenv("SPRING_DATASOURCE_URL");
+        String username = System.getenv("SPRING_DATASOURCE_USERNAME");
+        String password = System.getenv("SPRING_DATASOURCE_PASSWORD");
+        
+        System.out.println("  SPRING_DATASOURCE_URL: " + (url != null ? "SET (" + url + ")" : "NOT SET"));
+        System.out.println("  SPRING_DATASOURCE_USERNAME: " + (username != null ? "SET (" + username + ")" : "NOT SET"));
+        System.out.println("  SPRING_DATASOURCE_PASSWORD: " + (password != null ? "SET (***)" : "NOT SET"));
         System.out.println("  DATABASE_URL: " + (System.getenv("DATABASE_URL") != null ? "SET" : "NOT SET"));
+        
+        // Проверяем системные свойства
+        System.out.println("\nSystem Properties:");
+        System.out.println("  spring.datasource.url: " + System.getProperty("spring.datasource.url", "NOT SET"));
+        System.out.println("  spring.datasource.username: " + System.getProperty("spring.datasource.username", "NOT SET"));
         System.out.println("========================================");
     }
 }
