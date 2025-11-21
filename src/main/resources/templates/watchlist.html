@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой список просмотров - AllIn</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/cinema-hub.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-brand">AllIn</a>
+        </div>
+        <nav>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="/" class="sidebar-nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Главная</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/movies" class="sidebar-nav-link">
+                        <i class="fas fa-video"></i>
+                        <span>Фильмы</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/music" class="sidebar-nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Музыка</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/watchlists" class="sidebar-nav-link active">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Списки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                    <a href="/admin" class="sidebar-nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Настройки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${!isAuthenticated}">
+                    <a th:href="@{/auth/login}" class="sidebar-nav-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Войти</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${!isAuthenticated}">
+                    <a th:href="@{/auth/register}" class="sidebar-nav-link">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Регистрация</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-user-circle"></i>
+                        <span th:text="${currentUser?.username}">Пользователь</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xl); flex-wrap: wrap; gap: var(--spacing-md);">
+            <div>
+                <h1 style="margin: 0 0 var(--spacing-sm) 0;">
+                    <i class="fas fa-bookmark" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                    Мой список просмотров
+                </h1>
+            </div>
+            <div style="color: var(--text-secondary);">
+                <span th:text="${movies != null ? movies.size() : 0}">0</span> фильмов
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div th:if="${error}" class="card" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); margin-bottom: var(--spacing-lg);">
+            <div class="card-body" style="color: rgb(239, 68, 68);">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span th:text="${error}" style="margin-left: var(--spacing-xs);">Ошибка</span>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="card" style="text-align: center; padding: var(--spacing-xxl);" th:if="${movies == null or movies.empty}">
+            <div class="card-body">
+                <div style="font-size: 4rem; color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                    <i class="fas fa-bookmark"></i>
+                </div>
+                <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-sm);">Список просмотров пуст</h3>
+                <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg);">
+                    Добавьте фильмы в свой список просмотров, чтобы не забыть их посмотреть
+                </p>
+                <a href="/movies" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    <span>Найти фильмы</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Movies Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--spacing-lg);" 
+             th:if="${movies != null and !movies.empty}">
+            <div class="card" th:each="movie : ${movies}">
+                <div style="position: relative;">
+                    <img th:src="${movie.posterUrl}" th:alt="${movie.title}" 
+                         style="width: 100%; height: 300px; object-fit: cover; border-radius: var(--radius) var(--radius) 0 0;"
+                         onerror="this.src='/images/no-image.svg'">
+                    <div th:if="${movie.imdbRating != null}" 
+                         style="position: absolute; top: var(--spacing-xs); right: var(--spacing-xs); background: var(--primary-color); color: white; padding: 0.25rem 0.5rem; border-radius: var(--radius); font-weight: 600; font-size: 0.875rem;"
+                         th:text="${#numbers.formatDecimal(movie.imdbRating, 1, 1)}">8.5</div>
+                </div>
+                <div class="card-body">
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-xs); font-size: 1rem;" th:text="${movie.title}">Название фильма</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md); font-size: 0.875rem;" 
+                       th:if="${movie.year != null}" th:text="${movie.year}">2023</p>
+                    <a th:href="@{/movie/{id}(id=${movie.imdbId})}" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-eye"></i>
+                        <span>Подробнее</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="/api-docs" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);" 
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-book me-1"></i>API Документация
+                </a>
+                <a href="/actuator" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);"
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-chart-line me-1"></i>Мониторинг
+                </a>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

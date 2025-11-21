@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${movie.title} + ' - AllIn'">Фильм - AllIn</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/cinema-hub.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-brand">AllIn</a>
+        </div>
+        <nav>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="/" class="sidebar-nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Главная</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/movies" class="sidebar-nav-link">
+                        <i class="fas fa-video"></i>
+                        <span>Фильмы</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/music" class="sidebar-nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Музыка</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/watchlists" class="sidebar-nav-link">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Списки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                    <a href="/admin" class="sidebar-nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Настройки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${!isAuthenticated}">
+                    <a th:href="@{/auth/login}" class="sidebar-nav-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Войти</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${!isAuthenticated}">
+                    <a th:href="@{/auth/register}" class="sidebar-nav-link">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Регистрация</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-user-circle"></i>
+                        <span th:text="${currentUser?.username}">Пользователь</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Movie Hero Section -->
+        <div class="card" style="margin-bottom: var(--spacing-xl); background: var(--gradient-primary); color: white; padding: var(--spacing-xxl);" 
+             th:style="${movie.backdropUrl != null} ? 'background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(' + ${movie.backdropUrl} + '); background-size: cover; background-position: center;' : ''">
+            <div style="display: grid; grid-template-columns: auto 1fr; gap: var(--spacing-xl); align-items: start;">
+                <img th:src="${movie.posterUrl}" th:alt="${movie.title}" 
+                     style="max-width: 300px; width: 100%; border-radius: var(--radius); box-shadow: var(--shadow-lg);">
+                <div>
+                    <h1 style="margin: 0 0 var(--spacing-sm) 0; font-size: 2.5rem;" th:text="${movie.title}">Название фильма</h1>
+                    <h3 style="margin: 0 0 var(--spacing-md) 0; font-size: 1.25rem; opacity: 0.9; font-weight: 400;" 
+                        th:text="${movie.originalTitle}" th:if="${movie.originalTitle != movie.title}">Оригинальное название</h3>
+                    
+                    <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; margin-bottom: var(--spacing-md);">
+                        <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;" 
+                              th:if="${movie.imdbRating}">
+                            <i class="fas fa-star"></i> <span th:text="${movie.imdbRating}">8.5</span>/10
+                        </span>
+                        <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px;" th:if="${movie.year}">
+                            <span th:text="${movie.year}">2023</span>
+                        </span>
+                        <span style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px;" th:if="${movie.duration}">
+                            <i class="fas fa-clock"></i> <span th:text="${movie.duration}">120</span> мин
+                        </span>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-md);" th:if="${movie.genre}">
+                        <span th:each="genre : ${#strings.arraySplit(movie.genre, ',')}" 
+                              th:text="${#strings.trim(genre)}" 
+                              style="background: rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 20px; margin-right: var(--spacing-xs); display: inline-block; margin-bottom: var(--spacing-xs);"></span>
+                    </div>
+
+                    <p style="font-size: 1.1rem; line-height: 1.6; opacity: 0.95; margin-bottom: var(--spacing-lg);" th:text="${movie.overview}">Описание фильма...</p>
+                    
+                    <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+                        <button class="btn btn-outline" id="addToWatchlistBtn" onclick="addToWatchlist()" 
+                                th:disabled="${!isAuthenticated}"
+                                style="border-color: white; color: white;">
+                            <i class="fas fa-plus" th:if="${isAuthenticated}"></i>
+                            <i class="fas fa-lock" th:if="${!isAuthenticated}"></i>
+                            <span th:if="${isAuthenticated}">Добавить в список</span>
+                            <span th:if="${!isAuthenticated}">Войдите для добавления</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movie Details -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+            <div>
+                <div class="card" style="margin-bottom: var(--spacing-lg);">
+                    <div class="card-body">
+                        <h2 style="color: var(--text-primary); margin-bottom: var(--spacing-md);">О фильме</h2>
+                        <p style="color: var(--text-secondary); line-height: 1.6;" th:text="${movie.description}">Подробное описание фильма...</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-md);">Информация</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-md);">
+                            <div th:if="${movie.releaseDate}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Дата выхода:</span>
+                                <span style="color: var(--text-primary);" th:text="${#temporals.format(movie.releaseDate, 'dd MMMM yyyy')}">1 января 2023</span>
+                            </div>
+                            <div th:if="${movie.duration}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Продолжительность:</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.duration} + ' минут'">120 минут</span>
+                            </div>
+                            <div th:if="${movie.country}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Страна:</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.country}">США</span>
+                            </div>
+                            <div th:if="${movie.language}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Язык:</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.language}">Английский</span>
+                            </div>
+                            <div th:if="${movie.screenwriter}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Сценарист:</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.screenwriter}">Сценарист</span>
+                            </div>
+                            <div th:if="${movie.ageRating}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Возрастной рейтинг:</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.ageRating}">PG-13</span>
+                            </div>
+                            <div th:if="${movie.year}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Год выпуска:</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.year}">2023</span>
+                            </div>
+                            <div th:if="${movie.genre}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Жанр:</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.genre}">Драма</span>
+                            </div>
+                            <div th:if="${movie.imdbRating}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">IMDB рейтинг:</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.imdbRating} + '/10'">8.5/10</span>
+                            </div>
+                            <div th:if="${movie.ratingCount}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Количество голосов:</span>
+                                <span style="color: var(--text-primary);" th:text="${#numbers.formatDecimal(movie.ratingCount, 0, 'COMMA', 0, 'POINT')}">1,000,000</span>
+                            </div>
+                            <div th:if="${movie.awards}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Награды:</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.awards}">Оскар</span>
+                            </div>
+                            <div th:if="${movie.budget}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Бюджет:</span>
+                                <span style="color: var(--text-primary);" th:text="${#numbers.formatDecimal(movie.budget, 0, 'COMMA', 0, 'POINT')} + ' $'">$100,000,000</span>
+                            </div>
+                            <div th:if="${movie.boxOffice}">
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Сборы:</span>
+                                <span style="color: var(--text-primary);" th:text="${#numbers.formatDecimal(movie.boxOffice, 0, 'COMMA', 0, 'POINT')} + ' $'">$500,000,000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card" style="margin-bottom: var(--spacing-lg);">
+                    <div class="card-body">
+                        <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-md);">Быстрые действия</h3>
+                        <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+                            <button class="btn btn-outline" id="addToWatchlistBtnSidebar" onclick="addToWatchlist()" 
+                                    th:disabled="${!isAuthenticated}">
+                                <i class="fas fa-plus" th:if="${isAuthenticated}"></i>
+                                <i class="fas fa-lock" th:if="${!isAuthenticated}"></i>
+                                <span th:if="${isAuthenticated}">Добавить в список</span>
+                                <span th:if="${!isAuthenticated}">Войдите для добавления</span>
+                            </button>
+                            <a th:href="@{http://localhost:8084/reviews/movie/{imdbId}(imdbId=${movie.imdbId}, userId=${isAuthenticated ? currentUser.id : null}, username=${isAuthenticated ? currentUser.username : null})}" 
+                               class="btn btn-outline" target="_blank">
+                                <i class="fas fa-star"></i>
+                                <span>Оставить отзыв</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" th:if="${movie.posterUrl}">
+                    <img th:src="${movie.posterUrl}" th:alt="${movie.title}" 
+                         style="width: 100%; border-radius: var(--radius);">
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="/api-docs" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);" 
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-book me-1"></i>API Документация
+                </a>
+                <a href="/actuator" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);"
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-chart-line me-1"></i>Мониторинг
+                </a>
+            </div>
+        </footer>
+    </main>
+
+    
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        function addToWatchlist() {
+            const movieImdbId = /*[[${movie.imdbId}]]*/ '';
+            const movieTitle = /*[[${movie.title}]]*/ '';
+            const moviePosterUrl = /*[[${movie.posterUrl}]]*/ '';
+            const isAuthenticated = /*[[${isAuthenticated}]]*/ false;
+            
+            if (!isAuthenticated) {
+                alert('Для добавления фильмов в список необходимо войти в систему');
+                return;
+            }
+            
+            const btn = document.getElementById('addToWatchlistBtn');
+            const btnSidebar = document.getElementById('addToWatchlistBtnSidebar');
+            const originalText = btn?.innerHTML || '';
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Добавляем...';
+                btn.disabled = true;
+            }
+            if (btnSidebar) {
+                btnSidebar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Добавляем...';
+                btnSidebar.disabled = true;
+            }
+            
+            fetch('/watchlist/ajax/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `imdbId=${encodeURIComponent(movieImdbId)}&title=${encodeURIComponent(movieTitle)}&posterUrl=${encodeURIComponent(moviePosterUrl)}`
+            })
+            .then(response => {
+                if (response.ok) {
+                    if (btn) {
+                        btn.innerHTML = '<i class="fas fa-check"></i> В списке';
+                        btn.classList.remove('btn-outline');
+                        btn.classList.add('btn-primary');
+                    }
+                    if (btnSidebar) {
+                        btnSidebar.innerHTML = '<i class="fas fa-check"></i> В списке';
+                        btnSidebar.classList.remove('btn-outline');
+                        btnSidebar.classList.add('btn-primary');
+                    }
+                    alert('Фильм добавлен в список просмотров!');
+                } else {
+                    if (btn) {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                    if (btnSidebar) {
+                        btnSidebar.innerHTML = originalText;
+                        btnSidebar.disabled = false;
+                    }
+                    response.text().then(text => alert('Ошибка: ' + text));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+                if (btnSidebar) {
+                    btnSidebar.innerHTML = originalText;
+                    btnSidebar.disabled = false;
+                }
+                alert('Ошибка при добавлении в список');
+            });
+        }
+    </script>
+</body>
+</html>

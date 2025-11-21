@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фильмы - AllIn</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/cinema-hub.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-brand">AllIn</a>
+        </div>
+        <nav>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="/" class="sidebar-nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Главная</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/movies" class="sidebar-nav-link active">
+                        <i class="fas fa-video"></i>
+                        <span>Фильмы</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/music" class="sidebar-nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Музыка</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/watchlists" class="sidebar-nav-link">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Списки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                    <a href="/admin" class="sidebar-nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Настройки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${!isAuthenticated}">
+                    <a th:href="@{/auth/login}" class="sidebar-nav-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Войти</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${!isAuthenticated}">
+                    <a th:href="@{/auth/register}" class="sidebar-nav-link">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Регистрация</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-user-circle"></i>
+                        <span th:text="${currentUser?.username}">Пользователь</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar with Search -->
+        <div class="top-bar">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <form th:action="@{/movies}" method="get" style="display: contents;">
+                    <input type="text" name="search" class="search-input" 
+                           th:value="${searchQuery}" 
+                           placeholder="Введите название фильма для поиска..." 
+                           id="searchInput"
+                           autocomplete="off">
+                </form>
+            </div>
+        </div>
+
+        <!-- Empty State - No Search -->
+        <div th:if="${searchQuery == null or searchQuery.trim().isEmpty()}" 
+             class="card" 
+             style="text-align: center; padding: 4rem 2rem; max-width: 600px; margin: 0 auto;">
+            <div class="card-body">
+                <div style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1.5rem; opacity: 0.3;">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Начните поиск</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                    Введите название фильма в строке поиска выше, чтобы найти интересующие вас фильмы
+                </p>
+            </div>
+        </div>
+
+        <!-- Movies Grid - Only show when search query exists -->
+        <div th:if="${searchQuery != null and !searchQuery.trim().isEmpty() and movies != null and !movies.empty}">
+            <div style="margin-bottom: var(--spacing-md); color: var(--text-secondary);">
+                Найдено результатов: <span style="color: var(--text-primary); font-weight: 600;" th:text="${movies.size()}">0</span>
+            </div>
+            <div class="movies-grid">
+                <a th:each="movie : ${movies}" th:href="@{/movie/{id}(id=${movie.imdbId})}" 
+                   class="movie-card animate-zoom-in">
+                    <div class="position-relative">
+                        <img th:src="${movie.posterUrl}" th:alt="${movie.title}" class="movie-poster" 
+                             onerror="this.src='/images/no-image.svg'">
+                        <div class="rating-badge" th:if="${movie.imdbRating != null}" 
+                             th:text="${#numbers.formatDecimal(movie.imdbRating, 1, 1)}">8.5</div>
+                    </div>
+                    <div class="card-body">
+                        <h5 style="color: var(--text-primary); margin: 0; font-size: 1.125rem;" 
+                            th:text="${movie.title}">Название фильма</h5>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- No Results - When search was performed but no movies found -->
+        <div th:if="${searchQuery != null and !searchQuery.trim().isEmpty() and (movies == null or movies.empty)}" 
+             class="card" 
+             style="text-align: center; padding: 4rem 2rem;">
+            <div class="card-body">
+                <div style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1.5rem; opacity: 0.5;">
+                    <i class="fas fa-film"></i>
+                </div>
+                <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Фильмы не найдены</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                    По запросу "<span style="color: var(--text-primary);" th:text="${searchQuery}"></span>" ничего не найдено
+                </p>
+                <p style="color: var(--text-muted); font-size: 0.875rem;">
+                    Попробуйте изменить поисковый запрос
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="/api-docs" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);" 
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-book me-1"></i>API Документация
+                </a>
+                <a href="/actuator" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);"
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-chart-line me-1"></i>Мониторинг
+                </a>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
+
+        // Auto-submit search on Enter key
+        document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                this.closest('form')?.submit();
+            }
+        });
+    </script>
+</body>
+</html>

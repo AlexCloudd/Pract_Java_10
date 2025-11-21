@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Списки просмотра - AllIn</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/cinema-hub.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-brand">AllIn</a>
+        </div>
+        <nav>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="/" class="sidebar-nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Главная</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/movies" class="sidebar-nav-link">
+                        <i class="fas fa-video"></i>
+                        <span>Фильмы</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/music" class="sidebar-nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Музыка</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/watchlists" class="sidebar-nav-link active">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Списки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                    <a href="/admin" class="sidebar-nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Настройки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${!isAuthenticated}">
+                    <a th:href="@{/auth/login}" class="sidebar-nav-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Войти</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${!isAuthenticated}">
+                    <a th:href="@{/auth/register}" class="sidebar-nav-link">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Регистрация</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-user-circle"></i>
+                        <span th:text="${currentUser?.username}">Пользователь</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xl);">
+            <h1 style="margin: 0;">Списки просмотра</h1>
+            <a href="/watchlist/my" class="btn btn-primary">
+                <i class="fas fa-bookmark"></i>
+                <span>Мой список</span>
+            </a>
+        </div>
+
+        <!-- Quick Actions Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
+            <!-- My List Card -->
+            <div class="card">
+                <div class="card-body" style="text-align: center; padding: var(--spacing-xl);">
+                    <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: var(--spacing-md);">
+                        <i class="fas fa-bookmark"></i>
+                    </div>
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-sm);">Мой список</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg);">
+                        Просмотрите фильмы, которые вы добавили в список просмотров
+                    </p>
+                    <a href="/watchlist/my" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-eye"></i>
+                        <span>Просмотреть</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Find Movies Card -->
+            <div class="card">
+                <div class="card-body" style="text-align: center; padding: var(--spacing-xl);">
+                    <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: var(--spacing-md);">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-sm);">Найти фильмы</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg);">
+                        Найдите новые фильмы для просмотра и добавления в список
+                    </p>
+                    <a href="/movies" class="btn btn-outline" style="width: 100%;">
+                        <i class="fas fa-search"></i>
+                        <span>Поиск</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="/api-docs" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);" 
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-book me-1"></i>API Документация
+                </a>
+                <a href="/actuator" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);"
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-chart-line me-1"></i>Мониторинг
+                </a>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

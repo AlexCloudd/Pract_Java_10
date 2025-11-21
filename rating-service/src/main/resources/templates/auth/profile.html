@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль - AllIn</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/cinema-hub.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/reviews/search" class="sidebar-brand">AllIn</a>
+        </div>
+        <nav>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="http://localhost:8081" class="sidebar-nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Главная</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="http://localhost:8081/movies" class="sidebar-nav-link">
+                        <i class="fas fa-video"></i>
+                        <span>Фильмы</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="http://localhost:8081/music" class="sidebar-nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Музыка</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="http://localhost:8081/watchlists" class="sidebar-nav-link">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Списки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/reviews/search" class="sidebar-nav-link active">
+                        <i class="fas fa-star"></i>
+                        <span>Отзывы</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="card" style="max-width: 800px; margin: 0 auto;">
+            <div class="card-body" style="padding: var(--spacing-xl);">
+                <div style="text-align: center; margin-bottom: var(--spacing-xl);">
+                    <div style="font-size: 5rem; color: var(--primary-color); margin-bottom: var(--spacing-md);">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h2 style="color: var(--text-primary); margin: 0;">Профиль пользователя</h2>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                    <div>
+                        <label class="form-label">
+                            <i class="fas fa-user" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                            Имя
+                        </label>
+                        <p style="color: var(--text-primary); margin: var(--spacing-xs) 0 0 0;" th:text="${user.firstName}"></p>
+                    </div>
+                    <div>
+                        <label class="form-label">
+                            <i class="fas fa-user" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                            Фамилия
+                        </label>
+                        <p style="color: var(--text-primary); margin: var(--spacing-xs) 0 0 0;" th:text="${user.lastName}"></p>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: var(--spacing-lg);">
+                    <label class="form-label">
+                        <i class="fas fa-at" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                        Имя пользователя
+                    </label>
+                    <p style="color: var(--text-primary); margin: var(--spacing-xs) 0 0 0;" th:text="${user.username}"></p>
+                </div>
+
+                <div style="margin-bottom: var(--spacing-lg);">
+                    <label class="form-label">
+                        <i class="fas fa-envelope" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                        Email
+                    </label>
+                    <p style="color: var(--text-primary); margin: var(--spacing-xs) 0 0 0;" th:text="${user.email}"></p>
+                </div>
+
+                <div style="margin-bottom: var(--spacing-lg);">
+                    <label class="form-label">
+                        <i class="fas fa-id-card" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                        ID пользователя
+                    </label>
+                    <p style="color: var(--text-primary); margin: var(--spacing-xs) 0 0 0;" th:text="${user.id}"></p>
+                </div>
+
+                <div style="margin-bottom: var(--spacing-xl);">
+                    <label class="form-label">
+                        <i class="fas fa-check-circle" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                        Статус
+                    </label>
+                    <p style="margin: var(--spacing-xs) 0 0 0;">
+                        <span th:if="${user.isActive}" 
+                              style="display: inline-block; padding: 0.25rem 0.75rem; background: rgba(34, 197, 94, 0.2); color: rgb(34, 197, 94); border-radius: var(--radius); font-size: 0.875rem; font-weight: 600;">
+                            Активен
+                        </span>
+                        <span th:unless="${user.isActive}" 
+                              style="display: inline-block; padding: 0.25rem 0.75rem; background: rgba(239, 68, 68, 0.2); color: rgb(239, 68, 68); border-radius: var(--radius); font-size: 0.875rem; font-weight: 600;">
+                            Неактивен
+                        </span>
+                    </p>
+                </div>
+
+                <div style="border-top: 1px solid var(--border-color); padding-top: var(--spacing-lg); margin-top: var(--spacing-lg); text-align: center;">
+                    <div style="display: flex; gap: var(--spacing-md); justify-content: center; flex-wrap: wrap;">
+                        <a href="/reviews/search" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                            <span>Найти фильмы</span>
+                        </a>
+                        <a href="/reviews/recent" class="btn btn-outline">
+                            <i class="fas fa-clock"></i>
+                            <span>Мои отзывы</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="http://localhost:8081" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);" 
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-home me-1"></i>Главная
+                </a>
+                <a href="http://localhost:8081/api-docs" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);" 
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-book me-1"></i>API Документация
+                </a>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

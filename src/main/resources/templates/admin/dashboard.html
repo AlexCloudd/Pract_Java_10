@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ панель - AllIn</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/cinema-hub.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-brand">AllIn</a>
+        </div>
+        <nav>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="/" class="sidebar-nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Главная</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/movies" class="sidebar-nav-link">
+                        <i class="fas fa-video"></i>
+                        <span>Фильмы</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/music" class="sidebar-nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Музыка</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/watchlists" class="sidebar-nav-link">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Списки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/admin" class="sidebar-nav-link active">
+                        <i class="fas fa-cog"></i>
+                        <span>Админ панель</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-user-circle"></i>
+                        <span th:text="${currentUser?.username}">Пользователь</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div style="margin-bottom: var(--spacing-xl);">
+            <h1 style="margin: 0 0 var(--spacing-sm) 0;">Админ панель</h1>
+            <p style="color: var(--text-secondary); margin: 0;">Управление системой AllIn</p>
+        </div>
+
+        <!-- Admin Navigation -->
+        <div class="card" style="margin-bottom: var(--spacing-xl);">
+            <div class="card-body">
+                <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap; justify-content: center;">
+                    <a href="/admin" class="btn" style="background: var(--primary-color); color: white;">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Панель управления</span>
+                    </a>
+                    <a href="/admin/movies" class="btn btn-outline">
+                        <i class="fas fa-film"></i>
+                        <span>Фильмы</span>
+                    </a>
+                    <a href="/admin/users" class="btn btn-outline">
+                        <i class="fas fa-users"></i>
+                        <span>Пользователи</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
+            <div class="card">
+                <div class="card-body" style="text-align: center; padding: var(--spacing-xl);">
+                    <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: var(--spacing-md);">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-xs);" th:text="${totalMovies}">0</h3>
+                    <p style="color: var(--text-secondary); margin: 0;">Всего фильмов</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body" style="text-align: center; padding: var(--spacing-xl);">
+                    <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: var(--spacing-md);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-xs);" th:text="${totalUsers}">0</h3>
+                    <p style="color: var(--text-secondary); margin: 0;">Всего пользователей</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body" style="text-align: center; padding: var(--spacing-xl);">
+                    <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: var(--spacing-md);">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-xs);" th:text="${totalRatings}">0</h3>
+                    <p style="color: var(--text-secondary); margin: 0;">Всего отзывов</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card" style="margin-bottom: var(--spacing-xl);">
+            <div class="card-body">
+                <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-md);">Быстрые действия</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md);">
+                    <a href="/admin/movies/add" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        <span>Добавить фильм</span>
+                    </a>
+                    <a href="/admin/users/add" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Добавить пользователя</span>
+                    </a>
+                    <a href="/admin/movies" class="btn btn-outline">
+                        <i class="fas fa-list"></i>
+                        <span>Управление фильмами</span>
+                    </a>
+                    <a href="/admin/users" class="btn btn-outline">
+                        <i class="fas fa-users-cog"></i>
+                        <span>Управление пользователями</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Info -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-lg);">
+            <div class="card">
+                <div class="card-body">
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-md);">О системе</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                        AllIn - это современная система управления кинотеатром, 
+                        построенная на микросервисной архитектуре с использованием Spring Boot.
+                    </p>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="color: var(--text-secondary); margin-bottom: var(--spacing-xs);">
+                            <i class="fas fa-check" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                            Микросервисная архитектура
+                        </li>
+                        <li style="color: var(--text-secondary); margin-bottom: var(--spacing-xs);">
+                            <i class="fas fa-check" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                            Spring Boot & Spring Cloud
+                        </li>
+                        <li style="color: var(--text-secondary); margin-bottom: var(--spacing-xs);">
+                            <i class="fas fa-check" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                            PostgreSQL база данных
+                        </li>
+                        <li style="color: var(--text-secondary);">
+                            <i class="fas fa-check" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                            Eureka Service Discovery
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-md);">Сервисы</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                        Система состоит из нескольких микросервисов:
+                    </p>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="color: var(--text-secondary); margin-bottom: var(--spacing-xs);">
+                            <i class="fas fa-film" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                            Movie Service (8083)
+                        </li>
+                        <li style="color: var(--text-secondary); margin-bottom: var(--spacing-xs);">
+                            <i class="fas fa-users" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                            User Service (8082)
+                        </li>
+                        <li style="color: var(--text-secondary); margin-bottom: var(--spacing-xs);">
+                            <i class="fas fa-star" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                            Rating Service (8084)
+                        </li>
+                        <li style="color: var(--text-secondary);">
+                            <i class="fas fa-globe" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                            API Gateway (8080)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="/api-docs" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);" 
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-book me-1"></i>API Документация
+                </a>
+                <a href="/actuator" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);"
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-chart-line me-1"></i>Мониторинг
+                </a>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

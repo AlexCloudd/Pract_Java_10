@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - AllIn</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/cinema-hub.css}" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: var(--spacing-xl);
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        .auth-subtitle {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: var(--primary-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--bg-card);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-text {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            margin-top: 0.125rem;
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            line-height: 1.5;
+        }
+
+        .form-check-label a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .form-check-label a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-hover);
+        }
+
+        .alert {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing-md);
+            font-size: 0.875rem;
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #FCA5A5;
+        }
+
+        .auth-links {
+            text-align: center;
+            margin-top: var(--spacing-lg);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .auth-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .auth-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .auth-link-primary {
+            color: var(--primary-color) !important;
+            font-weight: 600;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            margin-top: var(--spacing-md);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 576px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1 class="auth-title">Регистрация</h1>
+            <p class="auth-subtitle">Создайте аккаунт в AllIn</p>
+
+            <!-- Сообщения об ошибках -->
+            <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <form th:action="@{/auth/register}" method="post" th:object="${registerRequest}" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName" class="form-label">Имя</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="firstName" 
+                               th:field="*{firstName}"
+                               placeholder="Введите имя">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName" class="form-label">Фамилия</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="lastName" 
+                               th:field="*{lastName}"
+                               placeholder="Введите фамилию">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="username" class="form-label required">Имя пользователя</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="username" 
+                           th:field="*{username}"
+                           placeholder="Введите имя пользователя"
+                           required>
+                    <div class="form-text">Имя пользователя должно содержать от 3 до 50 символов</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label required">Email</label>
+                    <input type="email" 
+                           class="form-control" 
+                           id="email" 
+                           th:field="*{email}"
+                           placeholder="Введите email"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label required">Пароль</label>
+                    <input type="password" 
+                           class="form-control" 
+                           id="password" 
+                           th:field="*{password}"
+                           placeholder="Введите пароль"
+                           required>
+                    <div class="form-text">Пароль должен содержать от 6 до 100 символов</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label required">Подтверждение пароля</label>
+                    <input type="password" 
+                           class="form-control" 
+                           id="confirmPassword" 
+                           th:field="*{confirmPassword}"
+                           placeholder="Подтвердите пароль"
+                           required>
+                </div>
+
+                <button type="submit" class="btn-submit">Зарегистрироваться</button>
+            </form>
+
+            <div class="auth-links">
+                <p style="margin-bottom: var(--spacing-sm);">
+                    Уже есть аккаунт? 
+                    <a th:href="@{/auth/login}" class="auth-link-primary">Войти</a>
+                </p>
+                <a th:href="@{/}" class="back-link">
+                    <span>←</span>
+                    <span>Вернуться на главную</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Проверка совпадения паролей
+        document.getElementById('confirmPassword')?.addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (password !== confirmPassword) {
+                this.setCustomValidity('Пароли не совпадают');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Проверка пароля при изменении
+        document.getElementById('password')?.addEventListener('input', function() {
+            const confirmPassword = document.getElementById('confirmPassword');
+            if (confirmPassword && confirmPassword.value) {
+                confirmPassword.dispatchEvent(new Event('input'));
+            }
+        });
+    </script>
+</body>
+</html>

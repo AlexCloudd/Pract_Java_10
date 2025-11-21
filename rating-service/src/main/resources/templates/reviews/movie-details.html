@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${movie.Title + ' - Отзывы - AllIn'}">Фильм - Отзывы - AllIn</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/cinema-hub.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/reviews/search" class="sidebar-brand">AllIn</a>
+        </div>
+        <nav>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="http://localhost:8081" class="sidebar-nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Главная</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="http://localhost:8081/movies" class="sidebar-nav-link">
+                        <i class="fas fa-video"></i>
+                        <span>Фильмы</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="http://localhost:8081/music" class="sidebar-nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Музыка</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="http://localhost:8081/watchlists" class="sidebar-nav-link">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Списки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/reviews/search" class="sidebar-nav-link active">
+                        <i class="fas fa-star"></i>
+                        <span>Отзывы</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Messages -->
+        <div th:if="${success}" class="card" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); margin-bottom: var(--spacing-lg);">
+            <div class="card-body" style="color: rgb(34, 197, 94);">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${success}" style="margin-left: var(--spacing-xs);"></span>
+            </div>
+        </div>
+        <div th:if="${error}" class="card" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); margin-bottom: var(--spacing-lg);">
+            <div class="card-body" style="color: rgb(239, 68, 68);">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span th:text="${error}" style="margin-left: var(--spacing-xs);"></span>
+            </div>
+        </div>
+
+        <!-- Movie Info -->
+        <div class="card" style="margin-bottom: var(--spacing-xl);">
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: auto 1fr; gap: var(--spacing-xl); align-items: start;">
+                    <img th:src="${movie.Poster != 'N/A' ? movie.Poster : 'https://via.placeholder.com/300x450?text=No+Poster'}" 
+                         class="movie-poster" 
+                         th:alt="${movie.Title}"
+                         style="max-width: 300px; width: 100%; border-radius: var(--radius);">
+                    <div>
+                        <h1 style="margin: 0 0 var(--spacing-md) 0; font-size: 2.5rem;" th:text="${movie.Title}">Название фильма</h1>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
+                            <div>
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Год выпуска</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.Year}">2024</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Длительность</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.Runtime}">120 мин</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Режиссер</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.Director}">Режиссер</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Жанр</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.Genre}">Жанр</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">IMDb рейтинг</span>
+                                <span style="color: var(--text-primary);" th:text="${movie.imdbRating}">8.5</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Актеры</span>
+                            <span style="color: var(--text-primary);" th:text="${movie.Actors}">Актеры</span>
+                        </div>
+                        
+                        <div>
+                            <span style="color: var(--text-secondary); font-weight: 500; display: block; margin-bottom: var(--spacing-xs);">Описание</span>
+                            <p style="color: var(--text-primary); line-height: 1.6; margin: 0;" th:text="${movie.Plot}">Описание фильма</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
+            <div class="card">
+                <div class="card-body" style="text-align: center;">
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-xs);" 
+                        th:text="${averageRating != null ? #numbers.formatDecimal(averageRating, 1, 1) : '0.0'}">8.5</h3>
+                    <p style="color: var(--text-secondary); margin: 0;">Средний рейтинг</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body" style="text-align: center;">
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-xs);" 
+                        th:text="${ratingCount != null ? ratingCount : 0}">0</h3>
+                    <p style="color: var(--text-secondary); margin: 0;">Количество отзывов</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body" style="text-align: center;">
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-xs);" 
+                        th:text="${movie.imdbRating}">8.5</h3>
+                    <p style="color: var(--text-secondary); margin: 0;">IMDb рейтинг</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Form -->
+        <div class="card" style="margin-bottom: var(--spacing-xl);">
+            <div class="card-header">
+                <h3 style="color: var(--text-primary); margin: 0;">
+                    <i class="fas fa-edit" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                    Оставить отзыв
+                </h3>
+            </div>
+            <div class="card-body">
+                <!-- User Info -->
+                <div th:if="${isAuthenticated}" class="card" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); margin-bottom: var(--spacing-md);">
+                    <div class="card-body" style="color: rgb(34, 197, 94);">
+                        <i class="fas fa-user"></i>
+                        <span style="margin-left: var(--spacing-xs);">
+                            Вы вошли как: <strong style="color: var(--text-primary);" th:text="${username}"></strong>
+                            <span style="color: var(--text-secondary);">(ID: <span th:text="${userId}"></span>)</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Review Form -->
+                <div th:if="${isAuthenticated}">
+                    <form th:action="@{/reviews/submit}" th:object="${ratingRequest}" method="post">
+                        <input type="hidden" th:field="*{movieId}">
+                        <input type="hidden" th:field="*{userId}">
+                        <input type="hidden" name="userId" th:value="${userId}">
+                        <input type="hidden" name="username" th:value="${username}">
+                        
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <label class="form-label">Ваша оценка</label>
+                            <div class="rating-input">
+                                <input type="radio" th:field="*{rating}" value="1" id="star1">
+                                <label for="star1">★</label>
+                                <input type="radio" th:field="*{rating}" value="2" id="star2">
+                                <label for="star2">★</label>
+                                <input type="radio" th:field="*{rating}" value="3" id="star3">
+                                <label for="star3">★</label>
+                                <input type="radio" th:field="*{rating}" value="4" id="star4">
+                                <label for="star4">★</label>
+                                <input type="radio" th:field="*{rating}" value="5" id="star5">
+                                <label for="star5">★</label>
+                                <input type="radio" th:field="*{rating}" value="6" id="star6">
+                                <label for="star6">★</label>
+                                <input type="radio" th:field="*{rating}" value="7" id="star7">
+                                <label for="star7">★</label>
+                                <input type="radio" th:field="*{rating}" value="8" id="star8">
+                                <label for="star8">★</label>
+                                <input type="radio" th:field="*{rating}" value="9" id="star9">
+                                <label for="star9">★</label>
+                                <input type="radio" th:field="*{rating}" value="10" id="star10">
+                                <label for="star10">★</label>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <label class="form-label">Ваш отзыв</label>
+                            <textarea th:field="*{review}" 
+                                      class="form-control" 
+                                      rows="4" 
+                                      placeholder="Расскажите о своих впечатлениях от фильма..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Отправить отзыв</span>
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Auth Required Message -->
+                <div th:if="${!isAuthenticated}" class="card" style="background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3);">
+                    <div class="card-body">
+                        <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-sm);">
+                            <i class="fas fa-exclamation-triangle" style="color: rgb(251, 191, 36); margin-right: var(--spacing-xs);"></i>
+                            Требуется авторизация
+                        </h3>
+                        <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                            Для оставления отзыва необходимо войти в систему через AllIn.
+                        </p>
+                        <a href="http://localhost:8081" class="btn btn-primary">
+                            <i class="fas fa-home"></i>
+                            <span>Перейти в AllIn</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Existing Reviews -->
+        <div th:if="${existingRatings != null and !existingRatings.empty}">
+            <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-lg);">
+                <i class="fas fa-comments" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                Отзывы пользователей
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                <div th:each="rating : ${existingRatings}" class="card">
+                    <div class="card-body">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-sm);">
+                            <h4 style="color: var(--text-primary); margin: 0; font-size: 1rem;">
+                                <i class="fas fa-user-circle" style="color: var(--primary-color); margin-right: var(--spacing-xs);"></i>
+                                Пользователь #<span th:text="${rating.userId}"></span>
+                            </h4>
+                            <div style="color: var(--primary-color); font-weight: 600;">
+                                <span th:text="${rating.rating}"></span>/10
+                            </div>
+                        </div>
+                        <p th:if="${rating.review}" style="color: var(--text-secondary); margin-bottom: var(--spacing-sm); line-height: 1.6;" 
+                           th:text="${rating.review}"></p>
+                        <small style="color: var(--text-muted); font-size: 0.875rem;">
+                            <i class="fas fa-clock" style="margin-right: var(--spacing-xs);"></i>
+                            <span th:text="${#temporals.format(rating.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div th:if="${existingRatings == null || existingRatings.empty}" class="card" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3);">
+            <div class="card-body" style="text-align: center; color: rgb(59, 130, 246);">
+                <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></i>
+                <p style="margin: 0;">Пока нет отзывов на этот фильм. Станьте первым!</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="http://localhost:8081" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);" 
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-home me-1"></i>Главная
+                </a>
+                <a href="http://localhost:8081/api-docs" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);" 
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-book me-1"></i>API Документация
+                </a>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

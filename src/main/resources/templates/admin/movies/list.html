@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление фильмами - Админ панель</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/cinema-hub.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-brand">AllIn</a>
+        </div>
+        <nav>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="/" class="sidebar-nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Главная</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/movies" class="sidebar-nav-link">
+                        <i class="fas fa-video"></i>
+                        <span>Фильмы</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/music" class="sidebar-nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Музыка</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/watchlists" class="sidebar-nav-link">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Списки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/admin" class="sidebar-nav-link active">
+                        <i class="fas fa-cog"></i>
+                        <span>Админ панель</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-user-circle"></i>
+                        <span th:text="${currentUser?.username}">Пользователь</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div style="margin-bottom: var(--spacing-xl);">
+            <h1 style="margin: 0 0 var(--spacing-sm) 0;">Управление фильмами</h1>
+            <p style="color: var(--text-secondary); margin: 0;">Добавление, редактирование и удаление фильмов</p>
+        </div>
+
+        <!-- Admin Navigation -->
+        <div class="card" style="margin-bottom: var(--spacing-xl);">
+            <div class="card-body">
+                <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap; justify-content: center;">
+                    <a href="/admin" class="btn btn-outline">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Панель управления</span>
+                    </a>
+                    <a href="/admin/movies" class="btn" style="background: var(--primary-color); color: white;">
+                        <i class="fas fa-film"></i>
+                        <span>Фильмы</span>
+                    </a>
+                    <a href="/admin/users" class="btn btn-outline">
+                        <i class="fas fa-users"></i>
+                        <span>Пользователи</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div th:if="${success}" class="card" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); margin-bottom: var(--spacing-lg);">
+            <div class="card-body" style="color: rgb(34, 197, 94);">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${success}" style="margin-left: var(--spacing-xs);"></span>
+            </div>
+        </div>
+        <div th:if="${error}" class="card" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); margin-bottom: var(--spacing-lg);">
+            <div class="card-body" style="color: rgb(239, 68, 68);">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span th:text="${error}" style="margin-left: var(--spacing-xs);"></span>
+            </div>
+        </div>
+
+        <!-- Search and Actions -->
+        <div class="card" style="margin-bottom: var(--spacing-xl);">
+            <div class="card-body">
+                <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; align-items: center;">
+                    <form th:action="@{/admin/movies/search}" method="get" style="flex: 1; min-width: 200px; display: flex; gap: var(--spacing-sm);">
+                        <input type="text" name="query" class="form-control" 
+                               placeholder="Поиск фильмов..." th:value="${query}"
+                               style="flex: 1;">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                    <a href="/admin/movies/add" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        <span>Добавить фильм</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movies List -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--spacing-lg);" 
+             th:if="${movies != null and !movies.empty}">
+            <div class="card" th:each="movie : ${movies}">
+                <div style="height: 200px; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                    <i class="fas fa-film"></i>
+                </div>
+                <div class="card-body">
+                    <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-sm);" th:text="${movie.title}">Название фильма</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-xs); font-size: 0.9rem;">
+                        <i class="fas fa-calendar" style="margin-right: var(--spacing-xs);"></i>
+                        <span th:text="${movie.year}">Год</span>
+                    </p>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-xs); font-size: 0.9rem;">
+                        <i class="fas fa-user" style="margin-right: var(--spacing-xs);"></i>
+                        <span th:text="${movie.director}">Режиссер</span>
+                    </p>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md); font-size: 0.9rem;">
+                        <i class="fas fa-tag" style="margin-right: var(--spacing-xs);"></i>
+                        <span th:text="${movie.genre}">Жанр</span>
+                    </p>
+                    <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                        <a th:href="@{/admin/movies/edit/{id}(id=${movie.id})}" class="btn btn-outline" style="flex: 1;">
+                            <i class="fas fa-edit"></i>
+                            <span>Редактировать</span>
+                        </a>
+                        <button type="button" class="btn btn-outline" 
+                                style="flex: 1; border-color: var(--error-color); color: var(--error-color);"
+                                th:data-movie-id="${movie.id}" 
+                                th:data-movie-title="${movie.title}"
+                                onclick="deleteMovie(this.dataset.movieId, this.dataset.movieTitle)">
+                            <i class="fas fa-trash"></i>
+                            <span>Удалить</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="card" style="text-align: center; padding: var(--spacing-xxl);" th:if="${movies == null or movies.empty}">
+            <div class="card-body">
+                <div style="font-size: 4rem; color: var(--text-secondary); margin-bottom: var(--spacing-md);">
+                    <i class="fas fa-film"></i>
+                </div>
+                <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-sm);">Фильмы не найдены</h3>
+                <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg);">Добавьте первый фильм в систему</p>
+                <a href="/admin/movies/add" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    <span>Добавить фильм</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="/api-docs" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);" 
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-book me-1"></i>API Документация
+                </a>
+                <a href="/actuator" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);"
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-chart-line me-1"></i>Мониторинг
+                </a>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="card" style="max-width: 500px; width: 90%; margin: var(--spacing-lg);">
+            <div class="card-body">
+                <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-md);">Подтверждение удаления</h3>
+                <p style="color: var(--text-secondary); margin-bottom: var(--spacing-sm);">
+                    Вы уверены, что хотите удалить фильм <strong id="movieTitle" style="color: var(--text-primary);"></strong>?
+                </p>
+                <p style="color: var(--error-color); font-size: 0.9rem; margin-bottom: var(--spacing-lg);">
+                    Это действие нельзя отменить!
+                </p>
+                <div style="display: flex; gap: var(--spacing-sm); justify-content: flex-end;">
+                    <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Отмена</button>
+                    <form id="deleteForm" method="post" style="display: inline;">
+                        <button type="submit" class="btn" style="background: var(--error-color); color: white;">Удалить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
+
+        function deleteMovie(id, title) {
+            document.getElementById('movieTitle').textContent = title;
+            document.getElementById('deleteForm').action = '/admin/movies/delete/' + id;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        // Close modal on outside click
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
+    </script>
+</body>
+</html>

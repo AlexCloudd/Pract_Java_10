@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить пользователя - Админ панель</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/cinema-hub.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-brand">AllIn</a>
+        </div>
+        <nav>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="/" class="sidebar-nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Главная</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/movies" class="sidebar-nav-link">
+                        <i class="fas fa-video"></i>
+                        <span>Фильмы</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/music" class="sidebar-nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Музыка</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/watchlists" class="sidebar-nav-link">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Списки</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="/admin" class="sidebar-nav-link active">
+                        <i class="fas fa-cog"></i>
+                        <span>Админ панель</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-user-circle"></i>
+                        <span th:text="${currentUser?.username}">Пользователь</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div style="margin-bottom: var(--spacing-xl);">
+            <h1 style="margin: 0 0 var(--spacing-sm) 0;">Добавить пользователя</h1>
+            <p style="color: var(--text-secondary); margin: 0;">Заполните информацию о новом пользователе</p>
+        </div>
+
+        <!-- Admin Navigation -->
+        <div class="card" style="margin-bottom: var(--spacing-xl);">
+            <div class="card-body">
+                <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap; justify-content: center;">
+                    <a href="/admin" class="btn btn-outline">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Панель управления</span>
+                    </a>
+                    <a href="/admin/movies" class="btn btn-outline">
+                        <i class="fas fa-film"></i>
+                        <span>Фильмы</span>
+                    </a>
+                    <a href="/admin/users" class="btn" style="background: var(--primary-color); color: white;">
+                        <i class="fas fa-users"></i>
+                        <span>Пользователи</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div th:if="${success}" class="card" style="background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.3); margin-bottom: var(--spacing-lg);">
+            <div class="card-body" style="color: rgb(34, 197, 94);">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${success}" style="margin-left: var(--spacing-xs);"></span>
+            </div>
+        </div>
+        <div th:if="${error}" class="card" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); margin-bottom: var(--spacing-lg);">
+            <div class="card-body" style="color: rgb(239, 68, 68);">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span th:text="${error}" style="margin-left: var(--spacing-xs);"></span>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="card" style="max-width: 700px; margin: 0 auto;">
+            <div class="card-body">
+                <form th:action="@{/admin/users/add}" th:object="${user}" method="post">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-lg);">
+                        <!-- Left Column -->
+                        <div>
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <label for="username" style="display: block; color: var(--text-primary); margin-bottom: var(--spacing-xs); font-weight: 500;">
+                                    Имя пользователя *
+                                </label>
+                                <input type="text" id="username" th:field="*{username}" class="form-control" 
+                                       placeholder="Введите имя пользователя" required>
+                            </div>
+
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <label for="email" style="display: block; color: var(--text-primary); margin-bottom: var(--spacing-xs); font-weight: 500;">
+                                    Email *
+                                </label>
+                                <input type="email" id="email" th:field="*{email}" class="form-control" 
+                                       placeholder="user@example.com" required>
+                            </div>
+
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <label for="password" style="display: block; color: var(--text-primary); margin-bottom: var(--spacing-xs); font-weight: 500;">
+                                    Пароль *
+                                </label>
+                                <input type="password" id="password" th:field="*{password}" class="form-control" 
+                                       placeholder="Введите пароль" required>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div>
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <label for="firstName" style="display: block; color: var(--text-primary); margin-bottom: var(--spacing-xs); font-weight: 500;">
+                                    Имя *
+                                </label>
+                                <input type="text" id="firstName" th:field="*{firstName}" class="form-control" 
+                                       placeholder="Введите имя" required>
+                            </div>
+
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <label for="lastName" style="display: block; color: var(--text-primary); margin-bottom: var(--spacing-xs); font-weight: 500;">
+                                    Фамилия *
+                                </label>
+                                <input type="text" id="lastName" th:field="*{lastName}" class="form-control" 
+                                       placeholder="Введите фамилию" required>
+                            </div>
+
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <label style="display: flex; align-items: center; gap: var(--spacing-sm); color: var(--text-primary); cursor: pointer;">
+                                    <input type="checkbox" id="isActive" th:field="*{isActive}" 
+                                           style="width: 20px; height: 20px; cursor: pointer;">
+                                    <span>Активный пользователь</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div style="display: flex; gap: var(--spacing-sm); justify-content: center; flex-wrap: wrap; margin-top: var(--spacing-lg);">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            <span>Сохранить пользователя</span>
+                        </button>
+                        <a href="/admin/users" class="btn btn-outline">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Назад к списку</span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="/api-docs" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);" 
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-book me-1"></i>API Документация
+                </a>
+                <a href="/actuator" style="color: var(--text-secondary); text-decoration: none; transition: var(--transition);"
+                   onmouseover="this.style.color='var(--primary-color)'" 
+                   onmouseout="this.style.color='var(--text-secondary)'">
+                    <i class="fas fa-chart-line me-1"></i>Мониторинг
+                </a>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024) {
+                if (!sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        document.querySelectorAll('.sidebar-nav-link').forEach(link => {
+            if (link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

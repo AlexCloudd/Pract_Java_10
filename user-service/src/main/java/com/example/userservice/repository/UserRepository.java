@@ -1,0 +1,41 @@
+package com.example.userservice.repository;
+
+import com.example.userservice.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    
+    Optional<User> findByUsername(String username);
+    
+    Optional<User> findByEmail(String email);
+    
+    Boolean existsByUsername(String username);
+    
+    Boolean existsByEmail(String email);
+    
+    @Query("SELECT u FROM User u WHERE u.isActive = true")
+    List<User> findActiveUsers();
+    
+    @Query("SELECT u FROM User u WHERE u.subscriptionType = :subscriptionType")
+    List<User> findBySubscriptionType(@Param("subscriptionType") User.SubscriptionType subscriptionType);
+    
+    @Query("SELECT u FROM User u WHERE u.firstName LIKE %:name% OR u.lastName LIKE %:name%")
+    List<User> findByNameContaining(@Param("name") String name);
+    
+    @Query("SELECT u FROM User u WHERE u.username = :usernameOrEmail OR u.email = :usernameOrEmail")
+    Optional<User> findByUsernameOrEmail(@Param("usernameOrEmail") String usernameOrEmail, @Param("usernameOrEmail") String usernameOrEmail2);
+    
+    @Query(value = "SELECT u.*, ur.role FROM users u LEFT JOIN user_roles ur ON u.id = ur.user_id WHERE u.username = :usernameOrEmail OR u.email = :usernameOrEmail", nativeQuery = true)
+    List<Object[]> findByUsernameOrEmailWithRoles(@Param("usernameOrEmail") String usernameOrEmail);
+}
+
+
+
+
