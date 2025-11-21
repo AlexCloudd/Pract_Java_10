@@ -7,8 +7,13 @@ spring:
   main:
     web-application-type: servlet
   datasource:
-    # Конфигурация для Railway - поддержка переменных окружения
-    url: jdbc:postgresql://${DB_HOST:${PGHOST:localhost}}:${DB_PORT:${PGPORT:5432}}/${DB_NAME:${PGDATABASE:Java_pr}}
+    # Конфигурация для Railway
+    # Приоритет: DATABASE_URL (Railway формат: postgresql://user:password@host:port/database)
+    # Затем: DB_HOST/DB_PORT или PGHOST/PGPORT (стандартные Railway переменные)
+    # При отсутствии переменных окружения используются значения по умолчанию для локальной разработки
+    url: ${DATABASE_URL:jdbc:postgresql://${DB_HOST:${PGHOST:localhost}}:${DB_PORT:${PGPORT:5432}}/${DB_NAME:${PGDATABASE:Java_pr}}}
+    # Если DATABASE_URL используется, username и password извлекаются из URL
+    # Иначе используются отдельные переменные окружения
     username: ${DB_USERNAME:${PGUSER:postgres}}
     password: ${DB_PASSWORD:${PGPASSWORD:postgres}}
     driver-class-name: org.postgresql.Driver
