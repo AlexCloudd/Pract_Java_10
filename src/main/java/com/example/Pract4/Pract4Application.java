@@ -23,7 +23,24 @@ import org.springframework.context.annotation.Profile;
 @Profile({"default", "microservice"})
 public class Pract4Application {
     public static void main(String[] args) {
+        // Логируем переменные окружения для отладки
+        logEnvironmentVariables();
+        
         SpringApplication.run(Pract4Application.class, args);
+    }
+    
+    private static void logEnvironmentVariables() {
+        System.out.println("========================================");
+        System.out.println("Environment Variables Check (BEFORE Spring Boot starts):");
+        System.out.println("  SPRING_DATASOURCE_URL: " + (System.getenv("SPRING_DATASOURCE_URL") != null ? "SET (" + System.getenv("SPRING_DATASOURCE_URL") + ")" : "NOT SET"));
+        System.out.println("  SPRING_DATASOURCE_USERNAME: " + (System.getenv("SPRING_DATASOURCE_USERNAME") != null ? "SET (" + System.getenv("SPRING_DATASOURCE_USERNAME") + ")" : "NOT SET"));
+        System.out.println("  SPRING_DATASOURCE_PASSWORD: " + (System.getenv("SPRING_DATASOURCE_PASSWORD") != null ? "SET (***)" : "NOT SET"));
+        System.out.println("  DATABASE_URL: " + (System.getenv("DATABASE_URL") != null ? "SET (" + System.getenv("DATABASE_URL").replaceAll(":[^:@]+@", ":***@") + ")" : "NOT SET"));
+        System.out.println("  PGHOST: " + (System.getenv("PGHOST") != null ? "SET (" + System.getenv("PGHOST") + ")" : "NOT SET"));
+        System.out.println("  PGPORT: " + (System.getenv("PGPORT") != null ? "SET (" + System.getenv("PGPORT") + ")" : "NOT SET"));
+        System.out.println("  PGDATABASE: " + (System.getenv("PGDATABASE") != null ? "SET (" + System.getenv("PGDATABASE") + ")" : "NOT SET"));
+        System.out.println("  DB_HOST: " + (System.getenv("DB_HOST") != null ? "SET (" + System.getenv("DB_HOST") + ")" : "NOT SET"));
+        System.out.println("========================================");
     }
 }
 

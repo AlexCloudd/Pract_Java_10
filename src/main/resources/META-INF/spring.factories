@@ -1,0 +1,2 @@
+org.springframework.boot.env.EnvironmentPostProcessor=com.example.Pract4.config.DatabaseUrlConfig
+
