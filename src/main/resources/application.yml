@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:8081}
+  port: 8081
 
 spring:
   application:
@@ -7,22 +7,16 @@ spring:
   main:
     web-application-type: servlet
   datasource:
-    # Конфигурация для Railway
-    # Приоритет: DATABASE_URL (Railway формат: postgresql://user:password@host:port/database)
-    # Затем: DB_HOST/DB_PORT или PGHOST/PGPORT (стандартные Railway переменные)
-    # При отсутствии переменных окружения используются значения по умолчанию для локальной разработки
-    url: ${DATABASE_URL:jdbc:postgresql://${DB_HOST:${PGHOST:localhost}}:${DB_PORT:${PGPORT:5432}}/${DB_NAME:${PGDATABASE:Java_pr}}}
-    # Если DATABASE_URL используется, username и password извлекаются из URL
-    # Иначе используются отдельные переменные окружения
-    username: ${DB_USERNAME:${PGUSER:postgres}}
-    password: ${DB_PASSWORD:${PGPASSWORD:postgres}}
+    url: jdbc:postgresql://localhost:5432/Java_pr
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    show-sql: ${SPRING_JPA_SHOW_SQL:false}
+    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -41,7 +35,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+      defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
   instance:
