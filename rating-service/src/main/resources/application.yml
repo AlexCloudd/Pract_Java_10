@@ -10,12 +10,11 @@ spring:
     cache: false
   datasource:
     # Конфигурация для Railway
-    # Приоритет 1: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD (рекомендуется)
-    # Приоритет 2: DATABASE_URL (парсится программно)
-    # Приоритет 3: PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:Java_pr}}
-    username: ${SPRING_DATASOURCE_USERNAME:${PGUSER:postgres}}
-    password: ${SPRING_DATASOURCE_PASSWORD:${PGPASSWORD:postgres}}
+    # Установите переменные окружения в Railway:
+    # SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/Java_pr}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -51,6 +50,9 @@ logging:
     com.example.ratingservice: DEBUG
     org.springframework.cloud: DEBUG
     org.springframework.web: DEBUG
+    org.springframework.jdbc.datasource: DEBUG
+    com.zaxxer.hikari: DEBUG
+    org.springframework.boot.autoconfigure.jdbc: DEBUG
 
 # OMDB API
 omdb.api.key: f50f6abd
