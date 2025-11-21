@@ -9,14 +9,17 @@ spring:
   thymeleaf:
     cache: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/Java_pr
-    username: postgres
-    password: postgres
+    # Конфигурация для Railway
+    # Railway автоматически предоставляет переменные окружения:
+    # PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD
+    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:Java_pr}
+    username: ${PGUSER:postgres}
+    password: ${PGPASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
