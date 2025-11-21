@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: ${PORT:8082}
 
 spring:
   application:
@@ -9,11 +9,12 @@ spring:
       enabled: false
   datasource:
     # Конфигурация для Railway
-    # Railway автоматически предоставляет переменные окружения:
-    # PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD
-    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:Java_pr}
-    username: ${PGUSER:postgres}
-    password: ${PGPASSWORD:postgres}
+    # Поддержка переменных окружения Railway (PGHOST, PGPORT) и альтернативных (DB_HOST, DB_PORT)
+    # Railway автоматически предоставляет: PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD
+    # При отсутствии переменных окружения используются значения по умолчанию для локальной разработки
+    url: jdbc:postgresql://${DB_HOST:${PGHOST:localhost}}:${DB_PORT:${PGPORT:5432}}/${DB_NAME:${PGDATABASE:Java_pr}}
+    username: ${DB_USERNAME:${PGUSER:postgres}}
+    password: ${DB_PASSWORD:${PGPASSWORD:postgres}}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -35,7 +36,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
     register-with-eureka: true
     fetch-registry: true
     enabled: true
