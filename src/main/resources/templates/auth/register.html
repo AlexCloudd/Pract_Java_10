@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация - AllIn</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link th:href="@{/css/cinema-hub.css}" rel="stylesheet">
+    <link href="/css/cinema-hub.css" rel="stylesheet">
     <style>
         body {
             display: flex;
@@ -204,18 +204,23 @@
             <p class="auth-subtitle">Создайте аккаунт в AllIn</p>
 
             <!-- Сообщения об ошибках -->
-            <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
-                <span th:text="${errorMessage}"></span>
+            <div id="errorMessage" class="alert alert-danger" role="alert" style="display: none;">
+                <span id="errorText"></span>
+            </div>
+            
+            <!-- Сообщения об успехе -->
+            <div id="successMessage" class="alert" role="alert" style="display: none; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #86EFAC;">
+                <span id="successText"></span>
             </div>
 
-            <form th:action="@{/auth/register}" method="post" th:object="${registerRequest}" novalidate>
+            <form id="registerForm" novalidate>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="firstName" class="form-label">Имя</label>
                         <input type="text" 
                                class="form-control" 
                                id="firstName" 
-                               th:field="*{firstName}"
+                               name="firstName"
                                placeholder="Введите имя">
                     </div>
                     <div class="form-group">
@@ -223,7 +228,7 @@
                         <input type="text" 
                                class="form-control" 
                                id="lastName" 
-                               th:field="*{lastName}"
+                               name="lastName"
                                placeholder="Введите фамилию">
                     </div>
                 </div>
@@ -233,7 +238,7 @@
                     <input type="text" 
                            class="form-control" 
                            id="username" 
-                           th:field="*{username}"
+                           name="username"
                            placeholder="Введите имя пользователя"
                            required>
                     <div class="form-text">Имя пользователя должно содержать от 3 до 50 символов</div>
@@ -244,7 +249,7 @@
                     <input type="email" 
                            class="form-control" 
                            id="email" 
-                           th:field="*{email}"
+                           name="email"
                            placeholder="Введите email"
                            required>
                 </div>
@@ -254,7 +259,7 @@
                     <input type="password" 
                            class="form-control" 
                            id="password" 
-                           th:field="*{password}"
+                           name="password"
                            placeholder="Введите пароль"
                            required>
                     <div class="form-text">Пароль должен содержать от 6 до 100 символов</div>
@@ -265,7 +270,7 @@
                     <input type="password" 
                            class="form-control" 
                            id="confirmPassword" 
-                           th:field="*{confirmPassword}"
+                           name="confirmPassword"
                            placeholder="Подтвердите пароль"
                            required>
                 </div>
@@ -278,7 +283,7 @@
                     Уже есть аккаунт? 
                     <a href="/auth/login" class="auth-link-primary">Войти</a>
                 </p>
-                <a th:href="@{/}" class="back-link">
+                <a href="/" class="back-link">
                     <span>←</span>
                     <span>Вернуться на главную</span>
                 </a>
@@ -287,6 +292,22 @@
     </div>
 
     <script>
+        // API URL - используем API Gateway
+        // Можно задать через переменную окружения или использовать автоматическое определение
+        // Для Railway: укажите URL вашего API Gateway
+        const API_BASE_URL = (() => {
+            // Если есть переменная окружения, используем её
+            if (window.API_BASE_URL) {
+                return window.API_BASE_URL;
+            }
+            // Для Railway используем API Gateway URL
+            if (window.location.origin.includes('railway')) {
+                return 'https://bountiful-smile-production.up.railway.app'; // Замените на ваш API Gateway URL
+            }
+            // Для локальной разработки
+            return 'http://localhost:8080';
+        })();
+        
         // Проверка совпадения паролей
         document.getElementById('confirmPassword')?.addEventListener('input', function() {
             const password = document.getElementById('password').value;
@@ -306,6 +327,78 @@
                 confirmPassword.dispatchEvent(new Event('input'));
             }
         });
+
+        // Обработка отправки формы
+        document.getElementById('registerForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Скрываем предыдущие сообщения
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            
+            // Получаем данные формы
+            const formData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                confirmPassword: document.getElementById('confirmPassword').value
+            };
+            
+            // Валидация
+            if (formData.password !== formData.confirmPassword) {
+                showError('Пароли не совпадают');
+                return;
+            }
+            
+            if (formData.password.length < 6) {
+                showError('Пароль должен содержать минимум 6 символов');
+                return;
+            }
+            
+            // Отправляем данные на API
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showSuccess(data.message || 'Регистрация прошла успешно! Перенаправление на страницу входа...');
+                    // Перенаправляем на страницу входа через 2 секунды
+                    setTimeout(() => {
+                        window.location.href = '/auth/login';
+                    }, 2000);
+                } else {
+                    showError(data.message || 'Ошибка при регистрации. Попробуйте еще раз.');
+                }
+            } catch (error) {
+                console.error('Ошибка при регистрации:', error);
+                showError('Ошибка подключения к серверу. Проверьте, что API сервис запущен.');
+            }
+        });
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorDiv.style.display = 'block';
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            const successText = document.getElementById('successText');
+            successText.textContent = message;
+            successDiv.style.display = 'block';
+            successDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     </script>
 </body>
 </html>

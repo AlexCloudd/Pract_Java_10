@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход в систему - AllIn</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link th:href="@{/css/cinema-hub.css}" rel="stylesheet">
+    <link href="/css/cinema-hub.css" rel="stylesheet">
     <style>
         body {
             display: flex;
@@ -176,19 +176,16 @@
             <p class="auth-subtitle">Добро пожаловать в AllIn</p>
 
             <!-- Сообщения об ошибках -->
-            <div th:if="${param.error}" class="alert alert-danger" role="alert">
-                Неверное имя пользователя или пароль
+            <div id="errorMessage" class="alert alert-danger" role="alert" style="display: none;">
+                <span id="errorText"></span>
+            </div>
+            
+            <!-- Сообщения об успехе -->
+            <div id="successMessage" class="alert" role="alert" style="display: none; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #86EFAC;">
+                <span id="successText"></span>
             </div>
 
-            <div th:if="${param.logout}" class="alert alert-success" role="alert">
-                Вы успешно вышли из системы
-            </div>
-
-            <div th:if="${successMessage}" class="alert alert-success" role="alert">
-                <span th:text="${successMessage}"></span>
-            </div>
-
-            <form th:action="@{/auth/login}" method="post" th:object="${loginRequest}">
+            <form id="loginForm">
                 <div class="form-group">
                     <label for="username" class="form-label">Имя пользователя или Email</label>
                     <input type="text" 
@@ -227,12 +224,89 @@
                     Нет аккаунта? 
                     <a href="/auth/register" class="auth-link-primary">Зарегистрироваться</a>
                 </p>
-                <a th:href="@{/}" class="back-link">
+                <a href="/" class="back-link">
                     <span>←</span>
                     <span>Вернуться на главную</span>
                 </a>
             </div>
         </div>
     </div>
+
+    <script>
+        // API URL - используем API Gateway
+        const API_BASE_URL = (() => {
+            // Если есть переменная окружения, используем её
+            if (window.API_BASE_URL) {
+                return window.API_BASE_URL;
+            }
+            // Для Railway используем API Gateway URL
+            if (window.location.origin.includes('railway')) {
+                return 'https://bountiful-smile-production.up.railway.app'; // Замените на ваш API Gateway URL
+            }
+            // Для локальной разработки
+            return 'http://localhost:8080';
+        })();
+
+        // Обработка отправки формы
+        document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Скрываем предыдущие сообщения
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            
+            // Получаем данные формы
+            const formData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            };
+            
+            // Отправляем данные на API
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showSuccess('Вход выполнен успешно! Перенаправление...');
+                    // Сохраняем токен, если он есть
+                    if (data.token) {
+                        localStorage.setItem('authToken', data.token);
+                    }
+                    // Перенаправляем на главную страницу через 1 секунду
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    showError(data.message || 'Неверное имя пользователя или пароль');
+                }
+            } catch (error) {
+                console.error('Ошибка при входе:', error);
+                showError('Ошибка подключения к серверу. Проверьте, что API сервис запущен.');
+            }
+        });
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorDiv.style.display = 'block';
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            const successText = document.getElementById('successText');
+            successText.textContent = message;
+            successDiv.style.display = 'block';
+            successDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
 </body>
 </html>
