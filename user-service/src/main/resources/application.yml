@@ -8,10 +8,6 @@ spring:
     config:
       enabled: false
   datasource:
-    # Конфигурация для Railway
-    # Установите переменные окружения в Railway:
-    # SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
-    # Spring Boot автоматически читает переменные окружения
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/Java_pr}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:postgres}
