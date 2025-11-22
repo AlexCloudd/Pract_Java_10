@@ -39,28 +39,28 @@
                         <span>Списки</span>
                     </a>
                 </li>
-                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                <li class="sidebar-nav-item">
                     <a href="/admin" class="sidebar-nav-link">
                         <i class="fas fa-cog"></i>
                         <span>Настройки</span>
                     </a>
                 </li>
-                <li class="sidebar-nav-item" th:if="${!isAuthenticated}">
-                    <a th:href="@{/auth/login}" class="sidebar-nav-link">
+                <li class="sidebar-nav-item">
+                    <a href="/auth/login" class="sidebar-nav-link">
                         <i class="fas fa-sign-in-alt"></i>
                         <span>Войти</span>
                     </a>
                 </li>
-                <li class="sidebar-nav-item" th:if="${!isAuthenticated}">
-                    <a th:href="@{/auth/register}" class="sidebar-nav-link">
+                <li class="sidebar-nav-item">
+                    <a href="/auth/register" class="sidebar-nav-link">
                         <i class="fas fa-user-plus"></i>
                         <span>Регистрация</span>
                     </a>
                 </li>
-                <li class="sidebar-nav-item" th:if="${isAuthenticated}">
+                <li class="sidebar-nav-item">
                     <a href="#" class="sidebar-nav-link">
                         <i class="fas fa-user-circle"></i>
-                        <span th:text="${currentUser?.username}">Пользователь</span>
+                        <span>Пользователь</span>
                     </a>
                 </li>
             </ul>

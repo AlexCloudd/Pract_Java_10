@@ -70,11 +70,23 @@ app.get('/watchlist/:id', (req, res) => {
 
 // Авторизация
 app.get('/auth/login', (req, res) => {
-    res.sendFile(path.join(templatesPath, 'auth', 'login.html'));
+    const filePath = path.join(templatesPath, 'auth', 'login.html');
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        console.error(`File not found: ${filePath}`);
+        res.status(404).send('Login page not found');
+    }
 });
 
 app.get('/auth/register', (req, res) => {
-    res.sendFile(path.join(templatesPath, 'auth', 'register.html'));
+    const filePath = path.join(templatesPath, 'auth', 'register.html');
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        console.error(`File not found: ${filePath}`);
+        res.status(404).send('Register page not found');
+    }
 });
 
 // Админ панель
