@@ -94,6 +94,32 @@ public class DatabaseUrlConfig implements EnvironmentPostProcessor {
             System.out.println("  PGDATABASE: " + (System.getenv("PGDATABASE") != null ? System.getenv("PGDATABASE") : "not set"));
             System.out.println("  PGUSER: " + (System.getenv("PGUSER") != null ? System.getenv("PGUSER") : "not set"));
             System.out.println("  PGPASSWORD: " + (System.getenv("PGPASSWORD") != null ? "***" : "not set"));
+            
+            // Check if we're in Railway environment (Railway sets RAILWAY_ENVIRONMENT)
+            boolean isRailway = System.getenv("RAILWAY_ENVIRONMENT") != null || 
+                               System.getenv("RAILWAY_PROJECT_ID") != null ||
+                               System.getenv("RAILWAY_SERVICE_ID") != null;
+            
+            if (isRailway) {
+                System.err.println("========================================");
+                System.err.println("WARNING: Database connection variables are not set!");
+                System.err.println("This usually means the database service is not linked to this service.");
+                System.err.println("");
+                System.err.println("To fix this in Railway:");
+                System.err.println("1. Go to your service in Railway Dashboard");
+                System.err.println("2. Click on 'Variables' tab");
+                System.err.println("3. Click 'New Variable' or 'Add from Service'");
+                System.err.println("4. Select your PostgreSQL database service");
+                System.err.println("5. Railway will automatically add: DATABASE_URL, PGHOST, PGPORT, etc.");
+                System.err.println("");
+                System.err.println("Alternatively, you can manually set:");
+                System.err.println("  - SPRING_DATASOURCE_URL=jdbc:postgresql://host:port/database");
+                System.err.println("  - SPRING_DATASOURCE_USERNAME=username");
+                System.err.println("  - SPRING_DATASOURCE_PASSWORD=password");
+                System.err.println("========================================");
+            } else {
+                System.out.println("Running in local development mode - using default localhost:5432");
+            }
         }
     }
 }
