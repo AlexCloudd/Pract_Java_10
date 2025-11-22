@@ -1,8 +1,25 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Логируем информацию о запуске
+console.log('========================================');
+console.log('Starting Frontend Server...');
+console.log(`PORT: ${PORT}`);
+console.log(`NODE_ENV: ${process.env.NODE_ENV || 'not set'}`);
+console.log(`__dirname: ${__dirname}`);
+console.log('========================================');
+
+// Проверяем существование директорий
+const staticPath = path.join(__dirname, 'static');
+const templatesPath = path.join(__dirname, 'templates');
+
+console.log(`Checking directories...`);
+console.log(`  static: ${staticPath} - ${fs.existsSync(staticPath) ? 'EXISTS' : 'NOT FOUND'}`);
+console.log(`  templates: ${templatesPath} - ${fs.existsSync(templatesPath) ? 'EXISTS' : 'NOT FOUND'}`);
 
 // Статические файлы (CSS, изображения)
 // Пути относительно текущей директории (src/main/resources)
@@ -10,12 +27,21 @@ app.use('/css', express.static(path.join(__dirname, 'static', 'css')));
 app.use('/images', express.static(path.join(__dirname, 'static', 'images')));
 app.use(express.static(path.join(__dirname, 'static')));
 
-// Путь к HTML шаблонам
-const templatesPath = path.join(__dirname, 'templates');
+// Middleware для логирования запросов
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    next();
+});
 
 // Маршруты для HTML страниц
 app.get('/', (req, res) => {
-    res.sendFile(path.join(templatesPath, 'index.html'));
+    const filePath = path.join(templatesPath, 'index.html');
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        console.error(`File not found: ${filePath}`);
+        res.status(404).send('File not found');
+    }
 });
 
 app.get('/movies', (req, res) => {
@@ -82,7 +108,18 @@ app.use((req, res) => {
     res.status(404).sendFile(path.join(templatesPath, 'index.html'));
 });
 
-app.listen(PORT, () => {
-    console.log(`Frontend server running on port ${PORT}`);
+// Запускаем сервер
+app.listen(PORT, '0.0.0.0', () => {
+    console.log('========================================');
+    console.log(`✅ Frontend server running on port ${PORT} (0.0.0.0)`);
+    console.log(`✅ Server is ready to accept connections`);
+    console.log(`✅ Access the server at: http://0.0.0.0:${PORT}`);
+    console.log('========================================');
+}).on('error', (err) => {
+    console.error('========================================');
+    console.error('❌ Failed to start server:');
+    console.error(err);
+    console.error('========================================');
+    process.exit(1);
 });
 
