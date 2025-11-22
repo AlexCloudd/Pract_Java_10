@@ -1,0 +1,16 @@
+{
+  "name": "cinema-hub-frontend",
+  "version": "1.0.0",
+  "description": "Static frontend for Cinema Hub",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+

@@ -10,13 +10,21 @@ spring:
     cache: false
   datasource:
     # Конфигурация для Railway
-    # Установите переменные окружения в Railway:
-    # SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
-    # Spring Boot автоматически читает переменные окружения
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/Java_pr}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    # Railway автоматически предоставляет: PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD
+    # Также можно использовать: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+    # Приоритет: SPRING_DATASOURCE_URL > сконструированный URL из PGHOST/PGPORT/PGDATABASE
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${DB_HOST:${PGHOST:localhost}}:${DB_PORT:${PGPORT:5432}}/${DB_NAME:${PGDATABASE:Java_pr}}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:${PGUSER:postgres}}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:${PGPASSWORD:postgres}}}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 300000
+      max-lifetime: 600000
+      initialization-fail-timeout: -1
+      connection-test-query: SELECT 1
   jpa:
     hibernate:
       ddl-auto: update
